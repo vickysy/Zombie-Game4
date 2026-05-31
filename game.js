@@ -469,6 +469,12 @@ function setupConnection(conn) {
                 joinOptions.classList.add('hidden');
                 document.getElementById('client-back-container').classList.remove('hidden');
                 document.getElementById('client-wait-text').classList.remove('hidden'); // Reset for next time
+                
+                // Let the host know we are joining
+                if (conn.open) {
+                    conn.send({ type: 'accept_join' });
+                }
+                
                 startGame(data.mode);
                 startRound(); // Client also needs to initialize round logic
                 
@@ -499,8 +505,31 @@ function setupConnection(conn) {
                 };
             }
         }
+        else if (data.type === 'accept_join') {
+            // Host receives this when client clicks join
+            const msg = document.createElement('div');
+            msg.innerText = "同伴已加入游戏！";
+            msg.style.position = 'absolute';
+            msg.style.top = '100px';
+            msg.style.left = '50%';
+            msg.style.transform = 'translateX(-50%)';
+            msg.style.color = '#55ff55';
+            msg.style.fontSize = '24px';
+            msg.style.fontWeight = 'bold';
+            msg.style.textShadow = '2px 2px 0 #000';
+            msg.style.zIndex = '1000';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
         else if (data.type === 'decline_join') {
-            alert("网络断开: 同伴拒绝了加入游戏！");
+            // Un-lock cursor if we are in game so user can click alert
+            if (controls.isLocked) {
+                controls.unlock();
+            }
+            // Small delay to ensure unlock finishes
+            setTimeout(() => {
+                alert("网络断开: 同伴拒绝了加入游戏！");
+            }, 100);
         }
         else if (data.type === 'pos') {
             if (companions[conn.peer]) {
