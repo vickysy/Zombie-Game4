@@ -495,12 +495,16 @@ function setupConnection(conn) {
             };
             const declineBtn = document.getElementById('btn-client-decline-game');
             if (declineBtn) {
+                // Must completely overwrite previous onclick to avoid duplicates
                 declineBtn.onclick = () => {
                     joinOptions.classList.add('hidden');
                     document.getElementById('client-back-container').classList.remove('hidden');
                     document.getElementById('client-wait-text').classList.remove('hidden');
                     if (conn.open) {
+                        console.log("Sending decline_join to host...");
                         conn.send({ type: 'decline_join' });
+                    } else {
+                        console.error("Connection is not open to send decline_join");
                     }
                 };
             }
@@ -522,14 +526,35 @@ function setupConnection(conn) {
             setTimeout(() => msg.remove(), 3000);
         }
         else if (data.type === 'decline_join') {
+            console.log("Received decline_join from client!");
             // Un-lock cursor if we are in game so user can click alert
             if (controls.isLocked) {
                 controls.unlock();
             }
-            // Small delay to ensure unlock finishes
-            setTimeout(() => {
-                alert("网络断开: 同伴拒绝了加入游戏！");
-            }, 100);
+            
+            // Show custom HTML modal instead of browser alert to avoid blocking the entire thread
+            const msg = document.createElement('div');
+            msg.innerHTML = `
+                <div style="background: rgba(0,0,0,0.9); border: 2px solid #ff5555; padding: 30px; border-radius: 10px; text-align: center;">
+                    <h2 style="color: #ff5555; margin-top: 0;">网络断开</h2>
+                    <p style="color: white; font-size: 20px;">同伴拒绝了加入游戏！</p>
+                    <button id="btn-close-decline" style="margin-top: 20px; padding: 10px 20px; background: #ff5555; color: white; border: none; font-size: 18px; cursor: pointer;">确定</button>
+                </div>
+            `;
+            msg.style.position = 'absolute';
+            msg.style.top = '0';
+            msg.style.left = '0';
+            msg.style.width = '100%';
+            msg.style.height = '100%';
+            msg.style.display = 'flex';
+            msg.style.justifyContent = 'center';
+            msg.style.alignItems = 'center';
+            msg.style.zIndex = '9999';
+            document.body.appendChild(msg);
+            
+            document.getElementById('btn-close-decline').onclick = () => {
+                msg.remove();
+            };
         }
         else if (data.type === 'pos') {
             if (companions[conn.peer]) {
