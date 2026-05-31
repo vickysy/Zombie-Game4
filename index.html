@@ -57,10 +57,18 @@
                     <li>(空)</li>
                 </ul>
             </div>
-            <div class="menu-buttons">
-                <button id="btn-mode-multi-zombies">开始：自己一个人作战 (打所有僵尸)</button>
-                <button id="btn-mode-multi-team">开始：团队枪战 (打人机)</button>
+            <div class="menu-buttons" id="lobby-mode-select">
+                <button id="btn-mode-multi-zombies">模式：自己一个人作战 (打所有僵尸)</button>
+                <button id="btn-mode-multi-team">模式：团队枪战 (打人机)</button>
                 <button id="btn-back-lobby-host" class="back-btn">解散房间</button>
+            </div>
+            
+            <div class="menu-buttons hidden" id="lobby-terrain-select" style="margin-top: 10px; border-top: 1px solid #555; padding-top: 20px;">
+                <h3 style="color: #ffaa00; margin-bottom: 10px; margin-top: 0;">选择作战地形：</h3>
+                <button id="btn-terrain-city" style="background-color: #555;">城市 (废墟)</button>
+                <button id="btn-terrain-grass" style="background-color: #2d5a27;">草原 (野外)</button>
+                <button id="btn-terrain-mountain" style="background-color: #dddddd; color: #000;">山上 (雪岭)</button>
+                <button id="btn-back-terrain" class="back-btn" style="margin-top: 15px;">返回重选模式</button>
             </div>
         </div>
 

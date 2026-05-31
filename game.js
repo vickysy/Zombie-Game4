@@ -32,8 +32,10 @@ let isGameStarted = false;
 let isHost = false;
 let mapGrid = [];
 let fixedSpawnPos = null;
+let currentTerrain = 'city';
 let lastZombieSpawnTime = 0;
 let lastSyncTime = 0; // Throttle network sync
+let pendingGameMode = '';
 let enemyIdCounter = 0;
 
 let sniperRangeBase = 10;
@@ -212,11 +214,33 @@ function setupMenus() {
     }
     
     document.getElementById('btn-mode-multi-zombies').onclick = () => {
-        startGame('multiplayer_zombies');
+        pendingGameMode = 'multiplayer_zombies';
+        document.getElementById('lobby-mode-select').classList.add('hidden');
+        document.getElementById('lobby-terrain-select').classList.remove('hidden');
     };
     
     document.getElementById('btn-mode-multi-team').onclick = () => {
-        startGame('multiplayer_team');
+        pendingGameMode = 'multiplayer_team';
+        document.getElementById('lobby-mode-select').classList.add('hidden');
+        document.getElementById('lobby-terrain-select').classList.remove('hidden');
+    };
+    
+    document.getElementById('btn-back-terrain').onclick = () => {
+        document.getElementById('lobby-terrain-select').classList.add('hidden');
+        document.getElementById('lobby-mode-select').classList.remove('hidden');
+    };
+    
+    document.getElementById('btn-terrain-city').onclick = () => {
+        currentTerrain = 'city';
+        startGame(pendingGameMode);
+    };
+    document.getElementById('btn-terrain-grass').onclick = () => {
+        currentTerrain = 'grass';
+        startGame(pendingGameMode);
+    };
+    document.getElementById('btn-terrain-mountain').onclick = () => {
+        currentTerrain = 'mountain';
+        startGame(pendingGameMode);
     };
 
     document.getElementById('btn-connect').onclick = () => {
@@ -318,7 +342,8 @@ function startGame(mode) {
                         type: 'start_game',
                         mode: gameMode,
                         mapGrid: mapGrid,
-                        fixedSpawnPos: fixedSpawnPos
+                        fixedSpawnPos: fixedSpawnPos,
+                        terrain: currentTerrain
                     });
                 }
             });
@@ -456,6 +481,7 @@ function setupConnection(conn) {
             // Received from host
             mapGrid = data.mapGrid;
             fixedSpawnPos = data.fixedSpawnPos;
+            currentTerrain = data.terrain || 'city';
             buildMapMeshes(); // We need to build meshes from received grid
             
             // Show the Join button instead of starting directly
@@ -844,9 +870,21 @@ function buildMapMeshes() {
     // Remove old walls/floor safely
     mapGroup.clear();
 
+    // Determine colors based on currentTerrain
+    let wallColor = '#808080', wallLineColor = '#505050';
+    let floorColor = '#3cb043', floorLineColor = '#228b22'; // Default Grass
+    
+    if (currentTerrain === 'city') {
+        floorColor = '#333333'; floorLineColor = '#111111'; // Dark asphalt
+        wallColor = '#666666'; wallLineColor = '#444444'; // Concrete
+    } else if (currentTerrain === 'mountain') {
+        floorColor = '#dddddd'; floorLineColor = '#aaaaaa'; // Snow/Ice
+        wallColor = '#444444'; wallLineColor = '#222222'; // Dark rock
+    } // 'grass' keeps the default green
+
     // Geometry & Materials
     const wallGeo = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE * 2, BLOCK_SIZE);
-    const wallTex = createGridTexture('#808080', '#505050', true); // Stone look
+    const wallTex = createGridTexture(wallColor, wallLineColor, true);
     const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, roughness: 1.0 });
     
     for (let i = 0; i < MAP_SIZE; i++) {
@@ -865,7 +903,7 @@ function buildMapMeshes() {
     }
 
     const floorGeo = new THREE.PlaneGeometry(MAP_SIZE * BLOCK_SIZE, MAP_SIZE * BLOCK_SIZE);
-    const floorTex = createGridTexture('#3cb043', '#228b22', true); // Grass look
+    const floorTex = createGridTexture(floorColor, floorLineColor, true);
     floorTex.repeat.set(MAP_SIZE, MAP_SIZE);
     const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, roughness: 1.0 });
 
