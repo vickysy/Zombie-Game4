@@ -12,7 +12,7 @@ let canJump = false;
 // Game Config
 const BLOCK_SIZE = 2; // Size of one voxel block
 const PLAYER_SPEED = 5; 
-const MAP_SIZE = 40; // Increased map size for a larger maze
+const MAP_SIZE = 80; // Increased map size for a larger maze
 
 // Game Logic State
 let gameMode = 'zombies'; // 'zombies', 'bots', 'multiplayer'
@@ -163,10 +163,32 @@ function setupMenus() {
     };
 
     document.getElementById('btn-mode-zombies').onclick = () => {
-        startGame('zombies');
+        pendingGameMode = 'zombies';
+        document.getElementById('single-mode-select').classList.add('hidden');
+        document.getElementById('single-terrain-select').classList.remove('hidden');
     };
     document.getElementById('btn-mode-bots').onclick = () => {
-        startGame('bots');
+        pendingGameMode = 'bots';
+        document.getElementById('single-mode-select').classList.add('hidden');
+        document.getElementById('single-terrain-select').classList.remove('hidden');
+    };
+    
+    document.getElementById('btn-back-single-terrain').onclick = () => {
+        document.getElementById('single-terrain-select').classList.add('hidden');
+        document.getElementById('single-mode-select').classList.remove('hidden');
+    };
+
+    document.getElementById('btn-single-terrain-city').onclick = () => {
+        currentTerrain = 'city';
+        startGame(pendingGameMode);
+    };
+    document.getElementById('btn-single-terrain-grass').onclick = () => {
+        currentTerrain = 'grass';
+        startGame(pendingGameMode);
+    };
+    document.getElementById('btn-single-terrain-mountain').onclick = () => {
+        currentTerrain = 'mountain';
+        startGame(pendingGameMode);
     };
 
     // Multi
@@ -873,14 +895,20 @@ function buildMapMeshes() {
     // Determine colors based on currentTerrain
     let wallColor = '#808080', wallLineColor = '#505050';
     let floorColor = '#3cb043', floorLineColor = '#228b22'; // Default Grass
+    let skyColor = 0x87ceeb;
     
     if (currentTerrain === 'city') {
         floorColor = '#333333'; floorLineColor = '#111111'; // Dark asphalt
         wallColor = '#666666'; wallLineColor = '#444444'; // Concrete
+        skyColor = 0x222222; // Night/Dark sky for city
     } else if (currentTerrain === 'mountain') {
         floorColor = '#dddddd'; floorLineColor = '#aaaaaa'; // Snow/Ice
         wallColor = '#444444'; wallLineColor = '#222222'; // Dark rock
+        skyColor = 0xccddee; // Pale/cold sky
     } // 'grass' keeps the default green
+    
+    scene.background = new THREE.Color(skyColor);
+    scene.fog = new THREE.Fog(skyColor, 10, 50);
 
     // Geometry & Materials
     const wallGeo = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE * 2, BLOCK_SIZE);

@@ -27,10 +27,17 @@
 
     <div id="single-menu" class="menu-screen hidden">
         <h1 style="font-size:36px; color: #fff;">选择单独对战模式</h1>
-        <div class="menu-buttons">
+        <div class="menu-buttons" id="single-mode-select">
             <button id="btn-mode-zombies">打僵尸</button>
             <button id="btn-mode-bots">和别人打</button>
             <button id="btn-back-single" class="back-btn">返回主菜单</button>
+        </div>
+        <div class="menu-buttons hidden" id="single-terrain-select" style="margin-top: 20px;">
+            <h3 style="color: #ffaa00; margin-bottom: 10px; margin-top: 0;">选择作战地形：</h3>
+            <button id="btn-single-terrain-city" style="background-color: #555;">城市 (废墟)</button>
+            <button id="btn-single-terrain-grass" style="background-color: #2d5a27;">草原 (野外)</button>
+            <button id="btn-single-terrain-mountain" style="background-color: #dddddd; color: #000;">山上 (雪岭)</button>
+            <button id="btn-back-single-terrain" class="back-btn" style="margin-top: 15px;">返回重选模式</button>
         </div>
     </div>
 
