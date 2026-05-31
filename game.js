@@ -487,6 +487,20 @@ function setupConnection(conn) {
 
                 controls.lock(); // Ensure lock is called directly from button click
             };
+            const declineBtn = document.getElementById('btn-client-decline-game');
+            if (declineBtn) {
+                declineBtn.onclick = () => {
+                    joinOptions.classList.add('hidden');
+                    document.getElementById('client-back-container').classList.remove('hidden');
+                    document.getElementById('client-wait-text').classList.remove('hidden');
+                    if (conn.open) {
+                        conn.send({ type: 'decline_join' });
+                    }
+                };
+            }
+        }
+        else if (data.type === 'decline_join') {
+            alert("网络断开: 同伴拒绝了加入游戏！");
         }
         else if (data.type === 'pos') {
             if (companions[conn.peer]) {
